@@ -13,8 +13,12 @@ should be inside Project/data folder.
 
 
 Running the Code:
-
-The code takes three command line arguments. First one should be one of "build","vector","bm25","mercer" or "dirichlet". Second one should be "true" or "false", based on if you would like to do the
+The code takes three command line arguments.
+HW2: First one should be one of "build","vector","bm25","mercer" or "dirichlet".
+HW4: First one should be case "build", "od1", "uw", "sum", "and", "or", or "max".
+Second one should be "true" or "false", based on if you would like to do the
 compression or not. Third argument should be the name of json file
-build: Builds the inverted index file and saves it.
+
+The "build" argument builds the inverted index file and saves it.
+
 

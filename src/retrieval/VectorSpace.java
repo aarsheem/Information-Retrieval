@@ -17,7 +17,7 @@ public class VectorSpace extends Query{
     }
 
     @Override
-    protected Double score(PostingList word, Integer q, Integer notFoundDocId) {
+    public Double score(PostingList word, Integer q, Integer notFoundDocId) {
         if(notFoundDocId != -1) return 0.0;
         Integer n = word.docFreq();
         Integer N = index.getDocumentsCount();

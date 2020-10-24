@@ -8,7 +8,7 @@ public class Posting {
     private List<Integer> positions;
     private Integer iterator;
 
-    Posting(Integer doc, Integer pos){
+    public Posting(Integer doc, Integer pos){
         this.docId = doc;
         positions = new ArrayList<>();
         positions.add(pos);

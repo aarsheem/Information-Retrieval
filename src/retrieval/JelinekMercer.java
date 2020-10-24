@@ -20,7 +20,7 @@ public class JelinekMercer extends Query {
     }
 
     @Override
-    protected Double score(PostingList word, Integer q, Integer notFoundDocId) {
+    public Double score(PostingList word, Integer q, Integer notFoundDocId) {
         Integer f, D;
         if(notFoundDocId != -1){
             D = index.getDocumentSize(notFoundDocId);

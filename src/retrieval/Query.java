@@ -2,50 +2,24 @@ package retrieval;
 
 import index.Index;
 import index.PostingList;
+import utility.DocOrder;
 
-import javax.print.Doc;
-import javax.print.DocFlavor;
+
 import java.util.*;
-
-import static java.lang.Integer.max;
 
 public class Query {
 
-    public class DocOrder implements Comparable<DocOrder>{
-        Double score;
-        Integer docId;
-
-        public DocOrder(Double s, Integer d){
-            score = s;
-            docId = d;
-        }
-
-        public Double getScore() {
-            return score;
-        }
-
-        public Integer getDocId(){
-            return docId;
-        }
-
-        @Override
-        public int compareTo(DocOrder other) {
-            return other.score.compareTo(score);
-        }
-    }
-
     protected Index index;
-    private String name = "count";
 
     public Query(Index index){
         this.index = index;
     }
 
     public String getName(){
-        return name;
+        return "count";
     }
 
-    protected Double score(PostingList word, Integer q, Integer notFoundDocId){
+    public Double score(PostingList word, Integer q, Integer notFoundDocId){
         if(notFoundDocId != -1) return 0.0;
         return (double)word.getDocCount() * q;
     }
@@ -78,13 +52,13 @@ public class Query {
         PriorityQueue<DocOrder> docs = new PriorityQueue<>();
         for(int docId = 0; docId < index.getDocumentsCount(); docId++){
             Double score = 0.0;
-            Boolean found = false;
+            Boolean found = Boolean.FALSE;
             for(Map.Entry<PostingList, Integer> e : words.entrySet()){
                 PostingList word = e.getKey(); Integer count = e.getValue();
                 if(word.getDoc() != docId)
                     score += score(word, count, docId);
                 else{
-                    found = true;
+                    found = Boolean.TRUE;
                     score += score(word, count, -1);
                     word.nextDoc();
                 }
@@ -93,7 +67,7 @@ public class Query {
         }
         List<DocOrder> docIds = new ArrayList<>();
         Integer count = 0;
-        while(!docs.isEmpty() && count != k){
+        while(!docs.isEmpty() && !count.equals(k)){
             docIds.add(docs.poll());
             count++;
         }
@@ -110,7 +84,7 @@ public class Query {
             for(Map.Entry<PostingList, Integer> e : words.entrySet()){
                 PostingList word = e.getKey();
                 int doc = word.getDoc();
-                currDocId = max(currDocId, doc);
+                currDocId = Math.max(currDocId, doc);
                 isEnd = isEnd || word.isEnd();
             }
             for(Map.Entry<PostingList, Integer> e : words.entrySet()){
@@ -131,7 +105,7 @@ public class Query {
         } while(!isEnd);
         List<DocOrder> docIds = new ArrayList<>();
         Integer count = 0;
-        while(!docs.isEmpty() && count != k){
+        while(!docs.isEmpty() && !count.equals(k)){
             docIds.add(docs.poll());
             count++;
         }
