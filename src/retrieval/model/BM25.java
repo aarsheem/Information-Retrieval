@@ -1,29 +1,27 @@
-package retrieval;
+package retrieval.model;
 
 import index.Index;
 import index.PostingList;
 
 import static java.lang.Math.log;
 
-public class BM25 extends Query{
-    private Double k1, k2, b;
-    private String name;
+public class BM25 extends Model {
+    private final Double k1, k2, b;
+    private final Index index;
     public BM25(Index index, Double _k1, Double _k2, Double _b){
-        super(index);
+        this.index = index;
         k1 = _k1;
         k2 = _k2;
         b = _b;
-        name = "bm25-" + k1 + "-" + k2 + "-" + b;
     }
 
     @Override
     public String getName() {
-        return name;
+        return "bm25-" + k1 + "-" + k2 + "-" + b;
     }
 
     @Override
-    public Double score(PostingList word, Integer q, Integer notFoundDocId) {
-        if(notFoundDocId != -1) return 0.0;
+    public Double score(PostingList word, Integer q) {
         Integer n = word.docFreq();
         Integer N = index.getDocumentsCount();
         Integer f = word.getDocCount();

@@ -5,6 +5,8 @@ import index.IndexBuilder;
 import index.PostingList;
 import retrieval.Dice;
 import retrieval.Query;
+import retrieval.model.Count;
+import retrieval.model.Model;
 
 import java.io.*;
 import java.util.*;
@@ -128,16 +130,17 @@ public class HW1 {
             e.printStackTrace();
         }
         Query query = new Query(index);
+        Model model = new Count();
         Query compressQuery = new Query(compressIndex);
 
         long startTime = System.currentTimeMillis();
         for(String[] words : seven){
-            query.documentAtATime(words);
+            query.documentAtATime(model, words);
         }
         long sevenTime = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
         for(String[] words : fourteen){
-            query.documentAtATime(words);
+            query.documentAtATime(model, words);
         }
         long fourteenTime = System.currentTimeMillis() - startTime;
         System.out.println("Uncompressed Time(ms): ");
@@ -145,12 +148,12 @@ public class HW1 {
 
         startTime = System.currentTimeMillis();
         for(String[] words : seven){
-            compressQuery.documentAtATime(words);
+            compressQuery.documentAtATime(model, words);
         }
         sevenTime = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
         for(String[] words : fourteen){
-            compressQuery.documentAtATime(words);
+            compressQuery.documentAtATime(model, words);
         }
         fourteenTime = System.currentTimeMillis() - startTime;
 

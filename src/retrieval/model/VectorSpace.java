@@ -1,24 +1,24 @@
-package retrieval;
+package retrieval.model;
 
 import index.Index;
 import index.PostingList;
+import retrieval.model.Model;
 
 import static java.lang.Math.log;
 
-public class VectorSpace extends Query{
-    private String name = "vector";
+public class VectorSpace extends Model {
+    private final Index index;
     public VectorSpace(Index index){
-        super(index);
+        this.index = index;
     }
 
     @Override
     public String getName() {
-        return name;
+        return "vector";
     }
 
     @Override
-    public Double score(PostingList word, Integer q, Integer notFoundDocId) {
-        if(notFoundDocId != -1) return 0.0;
+    public Double score(PostingList word, Integer q) {
         Integer n = word.docFreq();
         Integer N = index.getDocumentsCount();
         Integer D = index.getDocumentSize(word.getDoc());

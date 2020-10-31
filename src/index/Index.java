@@ -11,10 +11,12 @@ import java.util.*;
 
 public class Index {
     private Map<String, Lookup> lookup;
+    private Map<Integer, String> orderedWords;
+    private Map<String, Integer> docFreq;
     private List<Document> docs;
     private Integer totalWords;
     private Compression compress;
-    RandomAccessFile invertedIndex;
+    RandomAccessFile invertedIndex, documents;
 
     private class Lookup{
         public final Long offset;
@@ -28,24 +30,30 @@ public class Index {
     public Index(){
         docs = new ArrayList<>();
         lookup = new HashMap<>();
+        orderedWords = new HashMap<>();
+        docFreq = new HashMap<>();
         totalWords = 0;
     }
 
     public void load(boolean isCompress) throws FileNotFoundException {
-        String indexName, lookupName;
+        String indexName, lookupName, docName;
         if(isCompress){
             compress = new VbyteCompression();
             indexName = "inverted_index_compressed.txt";
             lookupName = "lookup_compressed.txt";
+            docName = "documents_compressed.txt";
         }
         else{
             compress = new EmptyCompression();
             indexName = "inverted_index.txt";
             lookupName = "lookup.txt";
+            docName = "documents.txt";
         }
         File indexFile = new File("data/" + indexName);
+        File docFile = new File("data/" + docName);
         invertedIndex = new RandomAccessFile(indexFile, "r");
-        totalWords = readDocuments("data/documents.txt");
+        documents = new RandomAccessFile(docFile, "r");
+        totalWords = readDocuments("data/document_info.txt");
         loadLookup("data/" + lookupName);
 
     }
@@ -63,10 +71,13 @@ public class Index {
     private void loadLookup(String filename) throws FileNotFoundException {
         File file = new File(filename);
         Scanner fileReader = new Scanner(file);
+        Integer count = 0;
         while(fileReader.hasNextLine()){
             String line = fileReader.nextLine();
             String[] words = line.split("\\s+");
             lookup.put(words[0], new Lookup(words[1], words[2]));
+            orderedWords.put(count, words[0]);
+            count++;
         }
         fileReader.close();
     }
@@ -82,17 +93,31 @@ public class Index {
     }
 
     private Integer readDocuments(String filename) throws FileNotFoundException {
-        Integer total = 0, curr;
+        Integer total = 0, size, count;
+        Long offset;
         File file = new File(filename);
         Scanner fileReader = new Scanner(file);
         while(fileReader.hasNextLine()){
             String line = fileReader.nextLine();
             String[] words = line.split("\\s+");
-            curr = Integer.parseInt(words[2]);
-            docs.add(new Document(words[0], words[1], curr));
-            total += curr;
+            size = Integer.parseInt(words[2]);
+            offset = Long.parseLong(words[3]);
+            count = Integer.parseInt(words[4]);
+            docs.add(new Document(words[0], words[1], offset, count));
+            total += size;
         }
         return total;
+    }
+
+    public Document getDocument(Integer docId){
+        if(docs.get(docId).getSize() != 0) return docs.get(docId);
+        Integer[] arr = compress.decode(documents, docs.get(docId).getOffset(), docs.get(docId).getCount());
+        Integer lastKey = 0;
+        for(int i = 0; i < arr.length; i+=2){
+            docs.get(docId).add(orderedWords.get(arr[i] + lastKey), arr[i+1]);
+            if(compress.isCompress()) lastKey += arr[i];
+        }
+        return docs.get(docId);
     }
 
     public String[] getVocab(){
@@ -117,5 +142,11 @@ public class Index {
 
     public Integer getTotalWords(){
         return totalWords;
+    }
+
+    public Integer getDocFreq(String word){
+        if(docFreq.containsKey(word)) return docFreq.get(word);
+        docFreq.put(word, getPostingList(word).docFreq());
+        return docFreq.get(word);
     }
 }

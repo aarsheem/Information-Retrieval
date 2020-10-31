@@ -2,13 +2,14 @@ package network.proximity.window;
 
 import index.Posting;
 import network.proximity.ProximityNode;
+import retrieval.model.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderNode extends WindowNode {
 
-    public OrderNode(retrieval.Query model, List<? extends ProximityNode> children, Integer range){
+    public OrderNode(Model model, List<? extends ProximityNode> children, Integer range){
         super(model, children, range);
     }
 

@@ -4,16 +4,17 @@ import index.Index;
 import network.QueryNode;
 import network.belief.*;
 import network.proximity.TermNode;
-import network.proximity.window.BandNode;
 import network.proximity.window.OrderNode;
 import network.proximity.window.UnorderNode;
-import retrieval.Dirichlet;
+import retrieval.model.Dirichlet;
+import retrieval.model.Model;
 import utility.DocOrder;
 
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,36 +34,29 @@ public class HW4 {
             "antony strumpet"
     };
 
-    private static QueryNode getQueryNode(retrieval.Query model, List<TermNode> termNodes, Class<? extends QueryNode> queryNodeClass){
+    private static QueryNode getQueryNode(Model model, List<TermNode> termNodes, Class<? extends QueryNode> queryNodeClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (OrderNode.class.equals(queryNodeClass)) {
             return new OrderNode(model, termNodes, od1Range);
         }
         else if(UnorderNode.class.equals(queryNodeClass)){
             return new UnorderNode(model, termNodes, uwRange * termNodes.size());
         }
-        else if(SumNode.class.equals(queryNodeClass)){
-            return new SumNode(termNodes);
+        else{
+            //and, or, max, sum
+            QueryNode node = queryNodeClass.getConstructor(List.class).newInstance(termNodes);
+            return node;
         }
-        else if(AndNode.class.equals(queryNodeClass)){
-            return new AndNode(termNodes);
-        }
-        else if(OrNode.class.equals(queryNodeClass)){
-            return new OrNode(termNodes);
-        }
-        else if(MaxNode.class.equals(queryNodeClass)){
-            return new MaxNode(termNodes);
-        }
-        return null;
     }
 
-    private static void printResults(retrieval.Query model, Index index, Class<? extends QueryNode> queryNodeClass) throws FileNotFoundException, UnsupportedEncodingException {
+    private static void printResults(Model model, Index index, Class<? extends QueryNode> queryNodeClass) throws FileNotFoundException, UnsupportedEncodingException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         PrintWriter fileWriter = null;
         List<TermNode> termNodes = new ArrayList<>();
         for (int i = 0; i < queries.length; i++) {
             String[] terms = queries[i].split("\\s+");
             for(String term : terms) termNodes.add(new TermNode(model, index.getPostingList(term)));
             QueryNode node = getQueryNode(model, termNodes, queryNodeClass);
-            List<String> results = getTrecrun(model.getName(), index, node, i+1);
+            List<DocOrder> topDocIds = network.Query.documentAtATime(node);
+            List<String> results = HW2.getTrecrun(topDocIds, index, i+1, node.getName() + "-" + model.getName());
             if(fileWriter == null){
                 String filename = "data/HW4/" + node.getName() + ".trecrun";
                 fileWriter = new PrintWriter(filename, "UTF-8");
@@ -73,31 +67,18 @@ public class HW4 {
         fileWriter.close();
     }
 
-    private static List<String> getTrecrun(String modelName, Index index, QueryNode node, Integer id){
-        List<String> results = new ArrayList<>();
-        String myID = "aarsheemishr-";
-        String name = node.getName() + "-" + modelName;
-        List<DocOrder> topDocIds = network.Query.documentAtATime(node);
-        for(int j = 0; j < topDocIds.size(); j++){
-            Integer docId = topDocIds.get(j).getDocId();
-            Double score = topDocIds.get(j).getScore();
-            String queryId = String.format("%-3s", "Q" + id);
-            String sceneId = String.format("%-40s", index.getSceneId(docId));
-            String rank = String.format("%-5d",j+1);
-            String scoreStr = String.format("%-10.5f",score);
-            results.add(queryId + " skip " + sceneId + rank + scoreStr + myID + name);
-        }
-        return results;
-    }
 
     public static void main(String[] args) {
         boolean isCompress = Boolean.parseBoolean(args[1]);
         String filename = "data/" + args[2];
         Index index = new Index();
-        retrieval.Query model = new Dirichlet(index, mu);
+        Model model = new Dirichlet(index, mu);
         try {
             switch (args[0]) {
-                case "build" -> HW1.buildIndex(filename, isCompress);
+                case "build" -> {
+                    HW1.buildIndex(filename, isCompress);
+                    return;
+                }
                 case "od1" -> {
                     index.load(isCompress);
                     printResults(model, index, OrderNode.class);
@@ -123,7 +104,8 @@ public class HW4 {
                     printResults(model, index, MaxNode.class);
                 }
             }
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+        }
+        catch (FileNotFoundException | UnsupportedEncodingException | InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }

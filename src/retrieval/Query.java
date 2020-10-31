@@ -2,6 +2,7 @@ package retrieval;
 
 import index.Index;
 import index.PostingList;
+import retrieval.model.Model;
 import utility.DocOrder;
 
 
@@ -13,15 +14,6 @@ public class Query {
 
     public Query(Index index){
         this.index = index;
-    }
-
-    public String getName(){
-        return "count";
-    }
-
-    public Double score(PostingList word, Integer q, Integer notFoundDocId){
-        if(notFoundDocId != -1) return 0.0;
-        return (double)word.getDocCount() * q;
     }
 
     //returns map of query terms posting lists and their counts
@@ -39,15 +31,15 @@ public class Query {
         return words;
     }
 
-    public List<DocOrder> documentAtATime(String[] query){
-        return documentAtATime( query, -1);
+    public List<DocOrder> documentAtATime(Model model, String[] query){
+        return documentAtATime(model, query, -1);
     }
 
-    public List<DocOrder> documentAtATimeConj(String[] query){
-        return documentAtATimeConj( query, -1);
+    public List<DocOrder> documentAtATimeConj(Model model, String[] query){
+        return documentAtATimeConj(model, query, -1);
     }
 
-    public List<DocOrder> documentAtATime(String[] query, Integer k){
+    public List<DocOrder> documentAtATime(Model model, String[] query, Integer k){
         Map<PostingList, Integer> words = getWords(query);
         PriorityQueue<DocOrder> docs = new PriorityQueue<>();
         for(int docId = 0; docId < index.getDocumentsCount(); docId++){
@@ -56,10 +48,10 @@ public class Query {
             for(Map.Entry<PostingList, Integer> e : words.entrySet()){
                 PostingList word = e.getKey(); Integer count = e.getValue();
                 if(word.getDoc() != docId)
-                    score += score(word, count, docId);
+                    score += model.scoreNotFound(word, count, docId);
                 else{
                     found = Boolean.TRUE;
-                    score += score(word, count, -1);
+                    score += model.score(word, count);
                     word.nextDoc();
                 }
             }
@@ -74,7 +66,7 @@ public class Query {
         return docIds;
     }
 
-    public List<DocOrder> documentAtATimeConj(String[] query, Integer k){
+    public List<DocOrder> documentAtATimeConj(Model model, String[] query, Integer k){
         Map<PostingList, Integer> words = getWords(query);
         PriorityQueue<DocOrder> docs = new PriorityQueue<>();
         Integer currDocId = -1;
@@ -91,7 +83,7 @@ public class Query {
                 PostingList word = e.getKey(); Integer count = e.getValue();
                 word.skipToDoc(currDocId);
                 if(word.getDoc().equals(currDocId)){
-                    score += score(word, count, -1);
+                    score += model.score(word, count);
                     word.nextDoc();
                 }
                 else {
