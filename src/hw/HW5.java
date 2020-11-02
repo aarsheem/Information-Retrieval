@@ -51,9 +51,9 @@ public class HW5 {
             System.out.println("\\caption{Threshold: " + thresholdStr + ", Total Clusters: " + clusters.size() + "}");
         }
         else{
-            //System.out.println("Threshold: " + thresholdStr + ", Total Clusters: " + clusters.size());
-            // System.out.println(sizes.toString());
-            System.out.print(clusters.size() + ", ");
+            System.out.println("Threshold: " + thresholdStr + ", Total Clusters: " + clusters.size());
+            System.out.println(sizes.toString());
+            //System.out.print(clusters.size() + ", ");
         }
         return  results;
     }

@@ -11,7 +11,7 @@ public class AvgCluster extends Cluster{
     public Double score(Document doc) {
         Double score = 0.0;
         for(Document d : this.docs){
-            score += dot(d.getVector(), doc.getVector());
+            score += cosine(d, doc);
         }
         return score/this.docs.size();
     }

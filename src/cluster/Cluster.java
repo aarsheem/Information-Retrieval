@@ -2,9 +2,7 @@ package cluster;
 
 import index.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Cluster {
     private Integer id;
@@ -27,7 +25,7 @@ public abstract class Cluster {
         docs.add(doc);
     }
 
-    protected Double dot(Map<String, Double> first, Map<String, Double> second){
+    protected Double cosine(Map<String, Double> first, Double firstNorm, Map<String, Double> second, Double secondNorm){
         if(first.size() > second.size()) {
             Map<String, Double> temp = first;
             first = second;
@@ -39,7 +37,11 @@ public abstract class Cluster {
             Double secondScore = second.getOrDefault(word, 0.0);
             dot += first.get(word) * secondScore;
         }
-        return dot;
+        return dot/(firstNorm * secondNorm);
+    }
+
+    protected Double cosine(Document first, Document second){
+        return this.cosine(first.getVector(), first.getNorm(), second.getVector(), second.getNorm());
     }
 
     public abstract Double score(Document doc);

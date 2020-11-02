@@ -16,8 +16,9 @@ public class Document implements Comparable<Document>{
     private String sceneId;
     private String playId;
     private Integer size;
+    private Double norm;
     private Map<String, Integer> freq;
-    private Map<String, Double> vector = null;
+    private Map<String, Double> vector;
 
     public Document(String scene, String play){
         this.sceneId = scene;
@@ -49,24 +50,19 @@ public class Document implements Comparable<Document>{
     public void vectorize(Index index){
         if(vector != null) return;
         vector = new HashMap<>();
-        Double norm = 0.0;
+        Double sumSquare = 0.0;
         for(Map.Entry<String, Integer> entry : freq.entrySet()){
             String word = entry.getKey();
             Integer f = entry.getValue();
-            // Integer D = size;
             Integer n  = index.getDocFreq(word);
             Integer N = index.getDocumentsCount();
-            Double idf = log((double)N/n);  //todo: check with prof.
+            Double idf = log(0.5 + (double)(N + 1)/n);
             Double tf = 1 + log(f);
             Double score = tf * idf;
             vector.put(word, score);
-            norm += score * score;
+            sumSquare += score * score;
         }
-        norm = Math.sqrt(norm);
-        // norm = 1
-        for(Map.Entry<String, Double> entry : vector.entrySet()){
-            vector.put(entry.getKey(), entry.getValue()/norm);
-        }
+        norm = Math.sqrt(sumSquare);
     }
 
     @Override
@@ -102,5 +98,7 @@ public class Document implements Comparable<Document>{
         return count;
     }
 
-
+    public Double getNorm(){
+        return this.norm;
+    }
 }

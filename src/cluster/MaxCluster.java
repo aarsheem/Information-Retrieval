@@ -11,7 +11,7 @@ public class MaxCluster extends Cluster{
     public Double score(Document doc) {
         Double score = Double.NEGATIVE_INFINITY;
         for(Document d : this.docs){
-            score = Math.max(score, dot(d.getVector(), doc.getVector()));
+            score = Math.max(score, cosine(d, doc));
         }
         return score;
     }
