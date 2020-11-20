@@ -21,7 +21,7 @@ import java.util.List;
 public class HW4 {
     private static final Double mu = 1500.;
     private static final Integer uwRange = 3, od1Range = 1;
-    private static final String[] queries = {
+    private static final String[] texts = {
             "the king queen royalty",
             "servant guard soldier",
             "hope dream sleep",
@@ -51,8 +51,8 @@ public class HW4 {
     private static void printResults(Model model, Index index, Class<? extends QueryNode> queryNodeClass) throws FileNotFoundException, UnsupportedEncodingException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         PrintWriter fileWriter = null;
         List<TermNode> termNodes = new ArrayList<>();
-        for (int i = 0; i < queries.length; i++) {
-            String[] terms = queries[i].split("\\s+");
+        for (int i = 0; i < texts.length; i++) {
+            String[] terms = texts[i].split("\\s+");
             for(String term : terms) termNodes.add(new TermNode(model, index.getPostingList(term)));
             QueryNode node = getQueryNode(model, termNodes, queryNodeClass);
             List<DocOrder> topDocIds = network.Query.documentAtATime(node);

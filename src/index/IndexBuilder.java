@@ -1,6 +1,9 @@
 package index;
 
 
+import index.prior.DocumentPrior;
+import index.prior.RandomPrior;
+import index.prior.UniformPrior;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import utility.Compression;
@@ -17,7 +20,7 @@ import java.util.stream.IntStream;
 
 public class IndexBuilder {
     public Map<String, PostingList> invertedIndex;
-    public List<Document> docs; //todo
+    public List<Document> docs;
     private Map<String, Integer> orderedWords;
     private Compression compress;
 
@@ -44,6 +47,8 @@ public class IndexBuilder {
         parseFile(filename);
         saveInvertedIndex("data/" + indexName,"data/" + lookupName);
         saveDocuments("data/" + docName, "data/document_info.txt");
+        savePriors(new RandomPrior(), "data/HW6/random.prior");
+        savePriors(new UniformPrior(), "data/HW6/uniform.prior");
     }
 
     //void parseFile(filename: String)
@@ -103,6 +108,7 @@ public class IndexBuilder {
         RandomAccessFile docWriter = new RandomAccessFile(docName, "rw");
         PrintWriter docInfoWriter = new PrintWriter(docInfoName, "UTF-8");
         long offset = 0;
+        Random rand = new Random();
         for (Document doc : docs){
             long lastOffset = offset;
             List<Integer> entries = docFreqToList(doc);
@@ -129,5 +135,12 @@ public class IndexBuilder {
             if(compress.isCompress()) lastKey = entry.getKey(); //save diff from last
         }
         return result;
+    }
+
+    private void savePriors(DocumentPrior prior, String priorName) throws IOException {
+        List<Double> priorScore = prior.score(docs);
+        RandomAccessFile priorWriter = new RandomAccessFile(priorName, "rw");
+        for(Double p : priorScore) priorWriter.writeDouble(p);
+        priorWriter.close();
     }
 }

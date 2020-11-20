@@ -55,7 +55,6 @@ public class Index {
         documents = new RandomAccessFile(docFile, "r");
         totalWords = readDocuments("data/document_info.txt");
         loadLookup("data/" + lookupName);
-
     }
 
     private void loadStringMap(String filename, Map<Integer, String> map) throws FileNotFoundException {
@@ -94,6 +93,7 @@ public class Index {
 
     private Integer readDocuments(String filename) throws FileNotFoundException {
         Integer total = 0, size, count;
+        Double prior;
         Long offset;
         File file = new File(filename);
         Scanner fileReader = new Scanner(file);
@@ -148,5 +148,9 @@ public class Index {
         if(docFreq.containsKey(word)) return docFreq.get(word);
         docFreq.put(word, getPostingList(word).docFreq());
         return docFreq.get(word);
+    }
+
+    public List<Document> getAllDocuments(){
+        return this.docs;
     }
 }
