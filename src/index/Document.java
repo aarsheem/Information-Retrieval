@@ -27,13 +27,13 @@ public class Document implements Comparable<Document>{
         size = 0;
     }
 
-    public Document(String scene, String play, Long offset, Integer count){
+    public Document(String scene, String play, Long offset, Integer count, Integer size){
         this.sceneId = scene;
         this.playId = play;
         this.offset = offset;
         this.count = count;
         freq = new HashMap<>();
-        size = 0;
+        this.size = size;
     }
 
     public void add(String word){

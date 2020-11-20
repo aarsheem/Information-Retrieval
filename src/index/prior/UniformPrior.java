@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UniformPrior implements DocumentPrior{
     @Override
-    public List<Double> score(List<Document> docs) {
-        return new ArrayList<>(Collections.nCopies(docs.size(), 1.0/docs.size()));
+    public List<Double> score(Integer totalDocs) {
+        return new ArrayList<>(Collections.nCopies(totalDocs, -Math.log(totalDocs)));
     }
 }

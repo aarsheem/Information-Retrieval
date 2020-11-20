@@ -21,7 +21,7 @@ public class HW6 {
     private static final Double mu = 1500.;
 
     private static void printResults(Index index, QueryNode priorNode) throws FileNotFoundException, UnsupportedEncodingException {
-        String text =  "antony strumpet";//"the king queen royalty";
+        String text =  "the king queen royalty";
         Model model = new Dirichlet(index, mu);
         List<QueryNode> leafNodes = new ArrayList<>();
         String[] terms = text.split("\\s+");

@@ -103,7 +103,7 @@ public class Index {
             size = Integer.parseInt(words[2]);
             offset = Long.parseLong(words[3]);
             count = Integer.parseInt(words[4]);
-            docs.add(new Document(words[0], words[1], offset, count));
+            docs.add(new Document(words[0], words[1], offset, count, size));
             total += size;
         }
         return total;

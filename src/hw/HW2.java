@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HW2 {
-    private static final Double k1 = 1.5, k2 = 500., b = 0.75, lambda = 0.2, mu = 1500.;
+    private static final Double k1 = 1.5, k2 = 500., b = 0.75, lambda = 0.2, mu = 1200.;
     private static String[] texts = {
         "the king queen royalty",
         "servant guard soldier",

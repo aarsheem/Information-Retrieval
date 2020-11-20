@@ -138,7 +138,7 @@ public class IndexBuilder {
     }
 
     private void savePriors(DocumentPrior prior, String priorName) throws IOException {
-        List<Double> priorScore = prior.score(docs);
+        List<Double> priorScore = prior.score(docs.size());
         RandomAccessFile priorWriter = new RandomAccessFile(priorName, "rw");
         for(Double p : priorScore) priorWriter.writeDouble(p);
         priorWriter.close();
